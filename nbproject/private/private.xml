@@ -2,14 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/home/programador2/Documentos/proyectos/ejemplos/SistemaFarmacia/src/views/LoginView.java</file>
-            <file>file:/home/programador2/Documentos/proyectos/ejemplos/SistemaFarmacia/src/views/SystemView.java</file>
-            <file>file:/home/programador2/Documentos/proyectos/ejemplos/SistemaFarmacia/src/views/PrintView.java</file>
-            <file>file:/home/programador2/Documentos/proyectos/ejemplos/SistemaFarmacia/src/controllers/PurchasesController.java</file>
-            <file>file:/home/programador2/Documentos/proyectos/ejemplos/SistemaFarmacia/src/controllers/SalesController.java</file>
-            <file>file:/home/programador2/Documentos/proyectos/ejemplos/SistemaFarmacia/src/models/SalesDao.java</file>
-            <file>file:/home/programador2/Documentos/proyectos/ejemplos/SistemaFarmacia/src/models/ProductsDao.java</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

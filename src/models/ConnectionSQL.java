@@ -18,15 +18,18 @@ public class ConnectionSQL {
     private String user = "web";
     private String password = "password";
     private String url = "jdbc:mysql://localhost:3306/" + database;
+    private String sqlite = "jdbc:sqlite:data/syspharmacy.db";
     Connection conn = null;
     
     public Connection getConnection() {
         
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection(url, user, password);
-        } catch(ClassNotFoundException e) {
-            System.err.println("ERROR => " + e.getMessage());
+            //Class.forName("com.mysql.cj.jdbc.Driver");
+            //conn = DriverManager.getConnection(url, user, password);
+            conn = DriverManager.getConnection(sqlite);
+            
+        //} catch(ClassNotFoundException e) {
+            //System.err.println("ERROR => " + e.getMessage());
         } catch (SQLException e) {
             System.err.println("ERROR => " + e.getMessage());
         }
