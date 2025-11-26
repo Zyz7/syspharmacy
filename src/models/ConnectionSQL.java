@@ -4,6 +4,9 @@
  */
 package models;
 
+import com.sun.tools.javac.Main;
+import java.io.File;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -18,10 +21,28 @@ public class ConnectionSQL {
     private String user = "web";
     private String password = "password";
     private String url = "jdbc:mysql://localhost:3306/" + database;
-    private String sqlite = "jdbc:sqlite:data/syspharmacy.db";
     Connection conn = null;
     
     public Connection getConnection() {
+        
+        String basePath;
+        File dbFile;
+        
+        try {
+            String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            basePath = new File (path).getParentFile().getAbsolutePath();
+            dbFile = new File (basePath + "/data/syspharmacy.db");
+            
+            if (!dbFile.exists()) {
+                basePath = new File(".").getAbsolutePath();
+                dbFile = new File(basePath + "/data/syspharmacy.db");
+            }
+        } catch(Exception e) {
+            basePath = new File(".").getAbsolutePath();
+            dbFile = new File(basePath + "/data/syspharmacy.db");
+        }
+    
+        String sqlite = "jdbc:sqlite:" + basePath + "/data/syspharmacy.db";
         
         try {
             //Class.forName("com.mysql.cj.jdbc.Driver");
