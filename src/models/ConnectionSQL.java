@@ -4,10 +4,13 @@
  */
 package models;
 
-import com.sun.tools.javac.Main;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -19,39 +22,70 @@ import java.sql.SQLException;
  */
 public class ConnectionSQL {
     
-    private String database = "syspharmacy";
-    private String user = "web";
-    private String password = "password";
-    private String url = "jdbc:mysql://localhost:3306/" + database;
-    private String path = "jdbc:sqlite:data/syspharmacy.db";
-    Connection conn = null;
+    private Connection conn;
+    private final String DBNAME = "syspharmacy.db";
     
-    private String getDbPath() {
-        try {
-            // Carpeta donde está el jar
-            String basePath = new File(
-            getClass().getProtectionDomain().getCodeSource().getLocation().toURI()
-            ).getParent();
-            return basePath + File.separator + "data" + File.separator + "syspharmacy.db";
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("No se pudo resolver la ruta del jar", e);
+    // Carpeta principal de la app según sistema operativo
+    private String getAppDataDir() {
+        String os = System.getProperty("os.name").toLowerCase();
+
+        if (os.contains("win")) {
+            return System.getenv("APPDATA") + "\\SysPharmacy\\";
+        } else if (os.contains("mac")) {
+            return System.getProperty("user.home") + "/Library/Application Support/SysPharmacy/";
+        } else { 
+            return System.getProperty("user.home") + "/.local/share/SysPharmacy/";
         }
     }
     
-    public Connection getConnection() {
+    // Ruta completa del archivo de la base de datos
+    private String getDBPath() {
+        return getAppDataDir() + DBNAME;
+    }
+    
+    // Copia automática del DB si no existe en la carpeta del usuario
+    private void ensureDatabaseExists() throws IOException {
         
-        String dbPath = getDbPath();
-        //path = "jdbc:sqlite:" + dbPath;
+        File dataDir = new File(getAppDataDir());
+        if (!dataDir.exists()) {
+            dataDir.mkdirs();
+        }
+
+        File dbFile = new File(getDBPath());
+        if (!dbFile.exists()) {
+            System.out.println("Base de datos no encontrada. Copiando desde recursos...");
+
+            try (InputStream is = ConnectionSQL.class.getResourceAsStream("/data/" + DBNAME);
+                 FileOutputStream fos = new FileOutputStream(dbFile)) {
+
+                if (is == null) {
+                    throw new FileNotFoundException(
+                            "El archivo no existe dentro de /data/");
+                }
+
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+
+                while ((bytesRead = is.read(buffer)) != -1) {
+                    fos.write(buffer, 0, bytesRead);
+                }
+
+                System.out.println("Base de datos copiada correctamente a: " + getDBPath());
+            }
+        }
+    }
+    
+    public Connection getConnection() throws SQLException {
         
-        try {
-            //Class.forName("com.mysql.cj.jdbc.Driver");
-            //conn = DriverManager.getConnection(url, user, password);
-            conn = DriverManager.getConnection(path);
+        if (conn == null || conn.isClosed()) {
+            try {
+                ensureDatabaseExists();
+
+            } catch(IOException e) {
+                throw new SQLException("Error al copiar la base de datos: " + e.getMessage());
+            }
             
-        //} catch(ClassNotFoundException e) {
-            //System.err.println("ERROR => " + e.getMessage());
-        } catch (SQLException e) {
-            System.err.println("ERROR SQL => " + e.getMessage());
+            conn = DriverManager.getConnection("jdbc:sqlite:" + getDBPath());
         }
         
         return conn;

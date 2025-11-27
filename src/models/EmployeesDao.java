@@ -38,29 +38,31 @@ public class EmployeesDao {
         String query = "SELECT * FROM employees WHERE username = ? AND password = ?";
         Employees employee = new Employees();
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+            
             pst.setString(1, user);
             pst.setString(2, password);
-            rs = pst.executeQuery();
             
-            if (rs.next()) {
-                employee.setId(rs.getInt("id"));
-                id_user = employee.getId();
-                employee.setFull_name(rs.getString("full_name"));
-                full_name_user = employee.getFull_name();
-                employee.setUsername(rs.getString("username"));
-                username_user = employee.getUsername();
-                employee.setAddress(rs.getString("address"));
-                address_user = employee.getAddress();
-                employee.setTelephone(rs.getString("telephone"));
-                telephone_user = employee.getTelephone();
-                employee.setEmail(rs.getString("email"));
-                email_user = employee.getEmail();
-                employee.setRol(rs.getString("rol"));
-                role_user = employee.getRol();
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    employee.setId(rs.getInt("id"));
+                    id_user = employee.getId();
+                    employee.setFull_name(rs.getString("full_name"));
+                    full_name_user = employee.getFull_name();
+                    employee.setUsername(rs.getString("username"));
+                    username_user = employee.getUsername();
+                    employee.setAddress(rs.getString("address"));
+                    address_user = employee.getAddress();
+                    employee.setTelephone(rs.getString("telephone"));
+                    telephone_user = employee.getTelephone();
+                    employee.setEmail(rs.getString("email"));
+                    email_user = employee.getEmail();
+                    employee.setRol(rs.getString("rol"));
+                    role_user = employee.getRol();
+                }
             }
+            
         } catch(SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
