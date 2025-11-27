@@ -1,3 +1,4 @@
 Manifest-Version: 1.0
 X-COMMENT: Main-Class will be added automatically by build
-
+Main-Class: main.main
+Class-Path: lib/sqlite-jdbc-3.51.0.0.jar lib/AbsoluteLayout.jar
