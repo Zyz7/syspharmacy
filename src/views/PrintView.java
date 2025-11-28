@@ -5,8 +5,7 @@
 package views;
 
 import java.awt.Graphics;
-import java.awt.PrintJob;
-import java.awt.Toolkit;
+import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -14,7 +13,6 @@ import java.awt.print.PrinterJob;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.WindowConstants;
-import models.ProductsDao;
 import models.Purchases;
 import models.PurchasesDao;
 import models.Sales;
@@ -27,8 +25,6 @@ import models.SalesDao;
 public class PrintView extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(PrintView.class.getName());
-    private Purchases purchase;
-    //private PurchasesDao purchase_dao;
     
     PurchasesDao purchase_dao = new PurchasesDao();
     SalesDao sale_dao = new SalesDao();
@@ -75,8 +71,6 @@ public class PrintView extends javax.swing.JFrame {
         List<Purchases> list = purchase_dao.listDetails(id);
         model = (DefaultTableModel) jTable_print_details.getModel();
         Object[] row = new Object[6];
-        String date = list.get(0).getCreated();
-        jText_date_invoice.setText("" + date);
         
         for (int i = 0; i < list.size(); i++) {
             row[0] = i+1;
@@ -86,6 +80,9 @@ public class PrintView extends javax.swing.JFrame {
             row[4] = list.get(i).getPurchase_amount();
             row[5] = list.get(i).getPurchase_subtotal();
             model.addRow(row);
+            
+            String date = list.get(i).getCreated();
+            jText_date_invoice.setText("" + date);
         }
         jTable_print_details.setModel(model);     
     }
@@ -105,8 +102,6 @@ public class PrintView extends javax.swing.JFrame {
         List<Sales> list = sale_dao.listDetails(id);
         model = (DefaultTableModel) jTable_print_details.getModel();
         Object[] row = new Object[6];
-        String date = list.get(0).getDate();
-        jText_date_invoice.setText("" + date);
         
         for (int i = 0; i < list.size(); i++) {
             row[0] = i+1;
@@ -116,6 +111,9 @@ public class PrintView extends javax.swing.JFrame {
             row[4] = list.get(i).getQuantity();
             row[5] = list.get(i).getSubtotal();
             model.addRow(row);
+            
+            String date = list.get(i).getDate();
+            jText_date_invoice.setText("" + date);
         }
         jTable_print_details.setModel(model);     
     }
@@ -130,6 +128,7 @@ public class PrintView extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jButton_purchase_print = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -141,13 +140,21 @@ public class PrintView extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jText_num_invoice = new javax.swing.JTextField();
-        jButton_purchase_print = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
         jText_print_total = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(620, 920));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jButton_purchase_print.setFont(new java.awt.Font("sansserif", 1, 13)); // NOI18N
+        jButton_purchase_print.setText("Print");
+        jButton_purchase_print.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton_purchase_printActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButton_purchase_print, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 860, -1, -1));
 
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -219,24 +226,15 @@ public class PrintView extends javax.swing.JFrame {
         });
         jPanel1.add(jText_num_invoice, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 87, 100, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 620, 850));
-
-        jButton_purchase_print.setFont(new java.awt.Font("sansserif", 1, 13)); // NOI18N
-        jButton_purchase_print.setText("Print");
-        jButton_purchase_print.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton_purchase_printActionPerformed(evt);
-            }
-        });
-        getContentPane().add(jButton_purchase_print, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 860, -1, -1));
+        jText_print_total.setEditable(false);
+        jText_print_total.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        jPanel1.add(jText_print_total, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 860, 100, -1));
 
         jLabel3.setFont(new java.awt.Font("sansserif", 1, 13)); // NOI18N
         jLabel3.setText("Total:");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 865, -1, -1));
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 865, -1, -1));
 
-        jText_print_total.setEditable(false);
-        jText_print_total.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        getContentPane().add(jText_print_total, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 860, 100, -1));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 620, 920));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -251,7 +249,26 @@ public class PrintView extends javax.swing.JFrame {
                 if (pageIndex > 0) {
                     return NO_SUCH_PAGE;
                 }
-                jButton_purchase_print.printAll(g);
+                
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.translate(pf.getImageableX(), pf.getImageableY());
+                
+                // Calcular escala para ajustar el panel a la hoja
+                double panelWidth = jPanel1.getWidth();
+                double panelHeight = jPanel1.getHeight();
+
+                double pageWidth = pf.getImageableWidth();
+                double pageHeight = pf.getImageableHeight();
+
+                double scaleX = pageWidth / panelWidth;
+                double scaleY = pageHeight / panelHeight;
+
+                // Usar el menor factor para mantener proporción
+                double scale = Math.min(scaleX, scaleY);
+
+                g2d.scale(scale, scale);
+        
+                jPanel1.printAll(g2d);
                 return PAGE_EXISTS;
             }
         });
