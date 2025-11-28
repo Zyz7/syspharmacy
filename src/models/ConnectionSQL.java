@@ -9,9 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -25,7 +22,7 @@ public class ConnectionSQL {
     private Connection conn;
     private final String DBNAME = "syspharmacy.db";
     
-    // Carpeta principal de la app según sistema operativo
+    // Main folder of the app according to operating system
     private String getAppDataDir() {
         String os = System.getProperty("os.name").toLowerCase();
 
@@ -38,12 +35,12 @@ public class ConnectionSQL {
         }
     }
     
-    // Ruta completa del archivo de la base de datos
+    // Full path of the database file 
     private String getDBPath() {
         return getAppDataDir() + DBNAME;
     }
     
-    // Copia automática del DB si no existe en la carpeta del usuario
+    // Automatic copy of the database if it does not exists in the user's folder
     private void ensureDatabaseExists() throws IOException {
         
         File dataDir = new File(getAppDataDir());
@@ -53,14 +50,13 @@ public class ConnectionSQL {
 
         File dbFile = new File(getDBPath());
         if (!dbFile.exists()) {
-            System.out.println("Base de datos no encontrada. Copiando desde recursos...");
+            System.out.println("Database not found, copying from data folder...");
 
             try (InputStream is = ConnectionSQL.class.getResourceAsStream("/data/" + DBNAME);
                  FileOutputStream fos = new FileOutputStream(dbFile)) {
 
                 if (is == null) {
-                    throw new FileNotFoundException(
-                            "El archivo no existe dentro de /data/");
+                    throw new FileNotFoundException("The file does not exist within the data folder");
                 }
 
                 byte[] buffer = new byte[4096];
@@ -70,7 +66,7 @@ public class ConnectionSQL {
                     fos.write(buffer, 0, bytesRead);
                 }
 
-                System.out.println("Base de datos copiada correctamente a: " + getDBPath());
+                System.out.println("Database successfully copied to: " + getDBPath());
             }
         }
     }
@@ -82,7 +78,7 @@ public class ConnectionSQL {
                 ensureDatabaseExists();
 
             } catch(IOException e) {
-                throw new SQLException("Error al copiar la base de datos: " + e.getMessage());
+                throw new SQLException("Error copying database: " + e.getMessage());
             }
             
             conn = DriverManager.getConnection("jdbc:sqlite:" + getDBPath());
