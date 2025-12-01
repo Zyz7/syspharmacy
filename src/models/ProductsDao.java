@@ -9,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,17 +32,19 @@ public class ProductsDao {
         String query = "INSERT INTO products (code, name, description, unit_price, quantity, created, updated, category_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         Timestamp datetime = new Timestamp(new Date().getTime());
+        LocalDateTime now = LocalDateTime.now();
+        String isoDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.setString(1, product.getCode());
             pst.setString(2, product.getName());
             pst.setString(3, product.getDescription());
             pst.setDouble(4, product.getUnit_price());
             pst.setInt(5, product.getQuantity());
-            pst.setTimestamp(6, datetime);
-            pst.setTimestamp(7, datetime);
+            pst.setString(6, isoDate);
+            pst.setString(7, isoDate);
             pst.setInt(8, product.getCategory_id());
             pst.execute();
             
@@ -58,27 +62,38 @@ public class ProductsDao {
         String search_product = "SELECT p.*, c.name AS category_name FROM products p INNER JOIN categories c ON p.category_id " +
                 "= c.id WHERE p.name LIKE '%" + value + "%'";
         
-        try {
-            conn  = cn.getConnection();
+        try (Connection conn  = cn.getConnection()) {
+            
             if (value.equalsIgnoreCase("")) {
-                pst = conn.prepareStatement(query);
-                rs = pst.executeQuery();
+                try (PreparedStatement pst = conn.prepareStatement(query); ResultSet rs = pst.executeQuery()) {
+                    while (rs.next()) {
+                        Products product = new Products();
+                        product.setId(rs.getInt("id"));
+                        product.setCode(rs.getString("code"));
+                        product.setName(rs.getString("name"));
+                        product.setDescription(rs.getString("description"));
+                        product.setUnit_price(rs.getDouble("unit_price"));
+                        product.setQuantity(rs.getInt("quantity"));
+                        product.setCategory_name(rs.getString("category_name"));
+                        list_products.add(product);
+                    }
+                }
             } else {
-                pst = conn.prepareStatement(search_product);
-                rs = pst.executeQuery();
+                try (PreparedStatement pst = conn.prepareStatement(search_product); ResultSet rs = pst.executeQuery()) {
+                    while (rs.next()) {
+                        Products product = new Products();
+                        product.setId(rs.getInt("id"));
+                        product.setCode(rs.getString("code"));
+                        product.setName(rs.getString("name"));
+                        product.setDescription(rs.getString("description"));
+                        product.setUnit_price(rs.getDouble("unit_price"));
+                        product.setQuantity(rs.getInt("quantity"));
+                        product.setCategory_name(rs.getString("category_name"));
+                        list_products.add(product);
+                    }
+                }
             }
             
-            while (rs.next()) {
-                Products product = new Products();
-                product.setId(rs.getInt("id"));
-                product.setCode(rs.getString("code"));
-                product.setName(rs.getString("name"));
-                product.setDescription(rs.getString("description"));
-                product.setUnit_price(rs.getDouble("unit_price"));
-                product.setQuantity(rs.getInt("quantity"));
-                product.setCategory_name(rs.getString("category_name"));
-                list_products.add(product);
-            }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.toString());
         }
@@ -91,16 +106,18 @@ public class ProductsDao {
         String query = "UPDATE products SET code = ?, name = ?, description = ?, unit_price = ?, quantity = ?, updated = ?, category_id = ? " +
                 "WHERE id = ?";
         Timestamp datetime = new Timestamp(new Date().getTime());
+        LocalDateTime now = LocalDateTime.now();
+        String isoDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.setString(1, product.getCode());
             pst.setString(2, product.getName());
             pst.setString(3, product.getDescription());
             pst.setDouble(4, product.getUnit_price());
             pst.setInt(5, product.getQuantity());
-            pst.setTimestamp(6, datetime);
+            pst.setString(6, isoDate);
             pst.setInt(7, product.getCategory_id());
             pst.setInt(8, product.getId());
             pst.execute();
@@ -115,11 +132,11 @@ public class ProductsDao {
     public boolean delete (int id) {
         
         String query = "DELETE FROM products WHERE id = " + id;
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.execute();
-            
             return true;
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
@@ -132,17 +149,18 @@ public class ProductsDao {
         String query = "SELECT * FROM categories WHERE name = ?";
         Products product = new Products();
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.setString(1, name);
-            rs = pst.executeQuery();
             
-            if (rs.next()) {
-                
-                product.setId(rs.getInt("id"));
-                product.setCategory_name(rs.getString("name"));
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    product.setId(rs.getInt("id"));
+                    product.setCategory_name(rs.getString("name"));
+                }
             }
+            
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
@@ -156,23 +174,24 @@ public class ProductsDao {
                 "ON p.category_id = c.id WHERE p.category_id = ?";
         Products product = new Products();
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.setInt(1, id);
-            rs = pst.executeQuery();
             
-            if (rs.next()) {
-                
-                product.setId(rs.getInt("id"));
-                product.setCode(rs.getString("code"));
-                product.setName(rs.getString("name"));
-                product.setDescription(rs.getString("description"));
-                product.setUnit_price(rs.getDouble("unit_price"));
-                product.setQuantity(rs.getInt("quantity"));
-                product.setCategory_id(rs.getInt("category_id"));
-                product.setCategory_name(rs.getString("category_name"));
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    product.setId(rs.getInt("id"));
+                    product.setCode(rs.getString("code"));
+                    product.setName(rs.getString("name"));
+                    product.setDescription(rs.getString("description"));
+                    product.setUnit_price(rs.getDouble("unit_price"));
+                    product.setQuantity(rs.getInt("quantity"));
+                    product.setCategory_id(rs.getInt("category_id"));
+                    product.setCategory_name(rs.getString("category_name"));
+                }
             }
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
@@ -185,19 +204,20 @@ public class ProductsDao {
         String query = "SELECT id, name, unit_price, quantity FROM products WHERE code = ?";
         Products product = new Products();
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
-            pst.setString(1, code);
-            rs = pst.executeQuery();
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
             
-            if (rs.next()) {
-                
-                product.setId(rs.getInt("id"));
-                product.setName(rs.getString("name"));
-                product.setUnit_price(rs.getDouble("unit_price"));
-                product.setQuantity(rs.getInt("quantity"));
+            pst.setString(1, code);
+            
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    product.setId(rs.getInt("id"));
+                    product.setName(rs.getString("name"));
+                    product.setUnit_price(rs.getDouble("unit_price"));
+                    product.setQuantity(rs.getInt("quantity"));
+                }
             }
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
@@ -210,16 +230,17 @@ public class ProductsDao {
         String query = "SELECT quantity FROM products WHERE id = ?";
         Products product = new Products();
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.setInt(1, id);
-            rs = pst.executeQuery();
             
-            if (rs.next()) {
-                
-                product.setQuantity(rs.getInt("quantity"));
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    product.setQuantity(rs.getInt("quantity"));
+                }
             }
+            
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
@@ -229,14 +250,17 @@ public class ProductsDao {
     
     public boolean updateProduct (double price, int amount, int product_id) {
         
-        String query = "UPDATE products SET unit_price = ?, quantity = ? WHERE id = ?";
+        String query = "UPDATE products SET unit_price = ?, quantity = ?, updated = ? WHERE id = ?";
+        LocalDateTime now = LocalDateTime.now();
+        String isoDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.setDouble(1, price);
             pst.setInt(2, amount);
-            pst.setInt(3, product_id);
+            pst.setString(3, isoDate);
+            pst.setInt(4, product_id);
             pst.execute();
             
             return true;

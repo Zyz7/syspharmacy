@@ -55,7 +55,7 @@ public class SuppliersController implements ActionListener, MouseListener, KeyLi
             
             if (view.jText_supplier_name.getText().equals("") || view.jText_supplier_phone.getText().equals("")
                     || view.jText_supplier_email.getText().equals("") || view.jText_supplier_address.getText().equals("")
-                    || view.jText_supplier_description.getText().equals("") || view.jCombo_cities.getSelectedItem().toString().equals("")) {
+                    || view.jText_supplier_description.getText().equals("") || view.jCombo_cities.getSelectedItem().toString().equals("Select an option")) {
                 
                 JOptionPane.showMessageDialog(null, "No field must be empty");
             } else {

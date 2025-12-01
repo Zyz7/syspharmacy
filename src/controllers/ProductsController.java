@@ -57,7 +57,7 @@ public class ProductsController implements ActionListener, MouseListener, KeyLis
         if (e.getSource() == view.jButton_product_register) {
             
             if (view.jText_product_code.getText().equals("") || view.jText_product_name.getText().equals("") || 
-                    view.jText_product_description.getText().equals("") || view.jCombo_categories.getSelectedItem().toString().equals("")) {
+                    view.jText_product_description.getText().equals("") || view.jCombo_categories.getSelectedItem().toString().equals("Select an option")) {
                 
                 JOptionPane.showMessageDialog(null, "No field must be empty");
             } else {

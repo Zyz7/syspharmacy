@@ -9,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -75,10 +77,12 @@ public class EmployeesDao {
         String query = "INSERT INTO employees (full_name, username, address, telephone, email, password, rol, created, updated) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         Timestamp datetime = new Timestamp(new Date().getTime());
+        LocalDateTime now = LocalDateTime.now();
+        String isoDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.setString(1, employee.getFull_name());
             pst.setString(2, employee.getUsername());
             pst.setString(3, employee.getAddress());
@@ -86,8 +90,8 @@ public class EmployeesDao {
             pst.setString(5, employee.getEmail());
             pst.setString(6, employee.getPassword());
             pst.setString(7, employee.getRol());
-            pst.setTimestamp(8, datetime);
-            pst.setTimestamp(9, datetime);
+            pst.setString(8, isoDate);
+            pst.setString(9, isoDate);
             pst.execute();
             
             return true;
@@ -103,27 +107,38 @@ public class EmployeesDao {
         String query = "SELECT * FROM employees ORDER BY rol ASC";
         String search_employee = "SELECT * FROM employees WHERE full_name LIKE '%" + value + "%'";
         
-        try {
-            conn  = cn.getConnection();
+        try (Connection conn  = cn.getConnection()) {
+
             if (value.equalsIgnoreCase("")) {
-                pst = conn.prepareStatement(query);
-                rs = pst.executeQuery();
+                try (PreparedStatement pst = conn.prepareStatement(query); ResultSet rs = pst.executeQuery()) {
+                    while (rs.next()) {
+                        Employees employee = new Employees();
+                        employee.setId(rs.getInt("id"));
+                        employee.setFull_name(rs.getString("full_name"));
+                        employee.setUsername(rs.getString("username"));
+                        employee.setAddress(rs.getString("address"));
+                        employee.setTelephone(rs.getString("telephone"));
+                        employee.setEmail(rs.getString("email"));
+                        employee.setRol(rs.getString("rol"));
+                        list_employees.add(employee);
+                    }
+                }
             } else {
-                pst = conn.prepareStatement(search_employee);
-                rs = pst.executeQuery();
+                try (PreparedStatement pst = conn.prepareStatement(search_employee); ResultSet rs = pst.executeQuery()) {
+                    while (rs.next()) {
+                        Employees employee = new Employees();
+                        employee.setId(rs.getInt("id"));
+                        employee.setFull_name(rs.getString("full_name"));
+                        employee.setUsername(rs.getString("username"));
+                        employee.setAddress(rs.getString("address"));
+                        employee.setTelephone(rs.getString("telephone"));
+                        employee.setEmail(rs.getString("email"));
+                        employee.setRol(rs.getString("rol"));
+                        list_employees.add(employee);
+                    }
+                }
             }
-            
-            while (rs.next()) {
-                Employees employee = new Employees();
-                employee.setId(rs.getInt("id"));
-                employee.setFull_name(rs.getString("full_name"));
-                employee.setUsername(rs.getString("username"));
-                employee.setAddress(rs.getString("address"));
-                employee.setTelephone(rs.getString("telephone"));
-                employee.setEmail(rs.getString("email"));
-                employee.setRol(rs.getString("rol"));
-                list_employees.add(employee);
-            }
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
@@ -136,17 +151,19 @@ public class EmployeesDao {
         String query = "UPDATE employees SET full_name = ?, username = ?, address = ?, telephone = ?, email = ?, rol = ?, updated = ? " +
                 "WHERE id = ?";
         Timestamp datetime = new Timestamp(new Date().getTime());
+        LocalDateTime now = LocalDateTime.now();
+        String isoDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.setString(1, employee.getFull_name());
             pst.setString(2, employee.getUsername());
             pst.setString(3, employee.getAddress());
             pst.setString(4, employee.getTelephone());
             pst.setString(5, employee.getEmail());
             pst.setString(6, employee.getRol());
-            pst.setTimestamp(7, datetime);
+            pst.setString(7, isoDate);
             pst.setInt(8, employee.getId());
             pst.execute();
 
@@ -162,17 +179,18 @@ public class EmployeesDao {
         String query = "SELECT * FROM employees WHERE password = ? AND id = ?";
         Employees employee = new Employees();
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.setString(1, pass);
             pst.setInt(2, id);
-            rs = pst.executeQuery();
             
-            if (rs.next()) {
-                return true;
-            } else {
-                return false;
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
             
         } catch(SQLException e) {
@@ -184,12 +202,16 @@ public class EmployeesDao {
     
     public boolean updatePass (Employees employee) {
         
-        String query = "UPDATE employees SET password = ? WHERE id = ?";
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        String query = "UPDATE employees SET password = ?, updated = ? WHERE id = ?";
+        LocalDateTime now = LocalDateTime.now();
+        String isoDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.setString(1, employee.getPassword());
-            pst.setInt(2, employee.getId());
+            pst.setString(2, isoDate);
+            pst.setInt(3, employee.getId());
             pst.executeUpdate();
             
             return true;
@@ -202,9 +224,10 @@ public class EmployeesDao {
     public boolean delete (int id) {
         
         String query = "DELETE FROM employees WHERE id = " + id;
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.execute();
             
             return true;

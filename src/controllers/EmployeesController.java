@@ -66,7 +66,7 @@ public class EmployeesController implements ActionListener, MouseListener, KeyLi
             if (view.jText_employee_fullname.getText().equals("") ||
                     view.jText_employee_address.getText().equals("") || view.jText_employee_email.getText().equals("") ||
                     view.jText_employee_phone.getText().equals("") || view.jText_employee_username.getText().equals("") || 
-                    view.jCombo_role.getSelectedItem().toString().equals("") || String.valueOf(view.jPassword_employee.getPassword()).equals("")) {
+                    view.jCombo_role.getSelectedItem().toString().equals("Select an option") || String.valueOf(view.jPassword_employee.getPassword()).equals("")) {
                 
                 JOptionPane.showMessageDialog(null, "No field must be empty");
             } else {
@@ -112,6 +112,7 @@ public class EmployeesController implements ActionListener, MouseListener, KeyLi
                         cleanTable();
                         cleanFields();
                         listEmployees();
+                        view.jPassword_employee.setEnabled(true);
                         view.jButton_employee_register.setEnabled(true);
                         JOptionPane.showMessageDialog(null, "Successfully modified employee");
                     } else {
@@ -138,6 +139,7 @@ public class EmployeesController implements ActionListener, MouseListener, KeyLi
                     cleanTable();
                     cleanFields();
                     listEmployees();
+                    view.jPassword_employee.setEnabled(true);
                     view.jButton_employee_register.setEnabled(true);
                     JOptionPane.showMessageDialog(null, "Successfully eliminated employee");
                 }

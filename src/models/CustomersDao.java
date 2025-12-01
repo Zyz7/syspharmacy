@@ -9,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,16 +32,18 @@ public class CustomersDao {
         String query = "INSERT INTO customers (full_name, address, telephone, email, created, updated) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
         Timestamp datetime = new Timestamp(new Date().getTime());
+        LocalDateTime now = LocalDateTime.now();
+        String isoDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.setString(1, customer.getFull_name());
             pst.setString(2, customer.getAddress());
             pst.setString(3, customer.getTelephone());
             pst.setString(4, customer.getEmail());
-            pst.setTimestamp(5, datetime);
-            pst.setTimestamp(6, datetime);
+            pst.setString(5, isoDate);
+            pst.setString(6, isoDate);
             pst.execute();
             
             return true;
@@ -55,25 +59,34 @@ public class CustomersDao {
         String query = "SELECT * FROM customers";
         String search_customer = "SELECT * FROM customers WHERE full_name LIKE '%" + value + "%'";
         
-        try {
-            conn  = cn.getConnection();
+        try (Connection conn  = cn.getConnection()) {
+
             if (value.equalsIgnoreCase("")) {
-                pst = conn.prepareStatement(query);
-                rs = pst.executeQuery();
+                try (PreparedStatement pst = conn.prepareStatement(query); ResultSet rs = pst.executeQuery()) {
+                    while (rs.next()) {
+                        Customers customer = new Customers();
+                        customer.setId(rs.getInt("id"));
+                        customer.setFull_name(rs.getString("full_name"));
+                        customer.setAddress(rs.getString("address"));
+                        customer.setTelephone(rs.getString("telephone"));
+                        customer.setEmail(rs.getString("email"));
+                        list_customers.add(customer);
+                    }
+                }
             } else {
-                pst = conn.prepareStatement(search_customer);
-                rs = pst.executeQuery();
+                try (PreparedStatement pst = conn.prepareStatement(search_customer); ResultSet rs = pst.executeQuery()) {
+                    while (rs.next()) {
+                        Customers customer = new Customers();
+                        customer.setId(rs.getInt("id"));
+                        customer.setFull_name(rs.getString("full_name"));
+                        customer.setAddress(rs.getString("address"));
+                        customer.setTelephone(rs.getString("telephone"));
+                        customer.setEmail(rs.getString("email"));
+                        list_customers.add(customer);
+                    }
+                }
             }
             
-            while (rs.next()) {
-                Customers customer = new Customers();
-                customer.setId(rs.getInt("id"));
-                customer.setFull_name(rs.getString("full_name"));
-                customer.setAddress(rs.getString("address"));
-                customer.setTelephone(rs.getString("telephone"));
-                customer.setEmail(rs.getString("email"));
-                list_customers.add(customer);
-            }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.toString());
         }
@@ -85,15 +98,17 @@ public class CustomersDao {
         
         String query = "UPDATE customers SET full_name = ?, address = ?, telephone = ?, email = ?, updated = ? WHERE id = ?";
         Timestamp datetime = new Timestamp(new Date().getTime());
+        LocalDateTime now = LocalDateTime.now();
+        String isoDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.setString(1, customer.getFull_name());
             pst.setString(2, customer.getAddress());
             pst.setString(3, customer.getTelephone());
             pst.setString(4, customer.getEmail());
-            pst.setTimestamp(5, datetime);
+            pst.setString(5, isoDate);
             pst.setInt(6, customer.getId());
             pst.execute();
             
@@ -107,9 +122,10 @@ public class CustomersDao {
     public boolean delete (int id) {
         
         String query = "DELETE FROM customers WHERE id = " + id;
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.execute();
             
             return true;
@@ -124,16 +140,17 @@ public class CustomersDao {
         String query = "SELECT * FROM customers WHERE id = ?";
         Customers customer = new Customers();
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.setInt(1, id);
-            rs = pst.executeQuery();
             
-            if (rs.next()) {
-                
-                customer.setFull_name(rs.getString("full_name"));
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    customer.setFull_name(rs.getString("full_name"));
+                }
             }
+            
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }

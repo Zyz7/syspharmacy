@@ -9,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,11 +31,13 @@ public class SalesDao {
         
         String query = "INSERT INTO sales (date, total, customer_id, employee_id) VALUES (?, ?, ?, ?)";
         Timestamp datetime = new Timestamp(new Date().getTime());
+        LocalDateTime now = LocalDateTime.now();
+        String isoDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
-            pst.setTimestamp(1, datetime);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
+            pst.setString(1, isoDate);
             pst.setDouble(2, total);
             pst.setInt(3, customer_id);
             pst.setInt(4, employee_id);
@@ -52,9 +56,9 @@ public class SalesDao {
                 "VALUES (?, ?, ?, ?, ?)";
         Timestamp datetime = new Timestamp(new Date().getTime());
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.setInt(1, quantity);
             pst.setDouble(2, price);
             pst.setDouble(3, subtotal);
@@ -74,15 +78,15 @@ public class SalesDao {
         int id = 0;
         String query = "SELECT MAX(id) AS id FROM sales";
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
-            rs = pst.executeQuery();
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
             
-            if (rs.next()) {
-                id = rs.getInt("id");
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    id = rs.getInt("id");
+                }
             }
-
+                        
         } catch(SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
@@ -97,21 +101,22 @@ public class SalesDao {
                 "INNER JOIN customers c ON s.customer_id = c.id " +
                 "INNER JOIN employees e ON s.employee_id = e.id ORDER BY s.id ASC";
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
-            rs = pst.executeQuery();
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
             
-            while (rs.next()) {
-                Sales sale = new Sales();
-                sale.setId(rs.getInt("id"));
-                sale.setCustomer_name(rs.getString("customer_name"));
-                sale.setEmployee_name(rs.getString("employee_name"));
-                sale.setTotal(rs.getDouble("total"));
-                sale.setDate(rs.getString("date"));
-                
-                list_sale.add(sale);
-            }
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    Sales sale = new Sales();
+                    sale.setId(rs.getInt("id"));
+                    sale.setCustomer_name(rs.getString("customer_name"));
+                    sale.setEmployee_name(rs.getString("employee_name"));
+                    sale.setTotal(rs.getDouble("total"));
+                    sale.setDate(rs.getString("date"));
+
+                    list_sale.add(sale);
+                }
+            }       
+            
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.toString());
         }
@@ -127,25 +132,27 @@ public class SalesDao {
                 "INNER JOIN products pr ON sd.product_id = pr.id " +
                 "INNER JOIN employees e ON s.employee_id = e.id WHERE s.id = ?";
         
-        try {
-            conn  = cn.getConnection();
-            pst = conn.prepareStatement(query);
+        try (Connection conn  = cn.getConnection();
+            PreparedStatement pst = conn.prepareStatement(query)) {
+
             pst.setInt(1, id);
-            rs = pst.executeQuery();
             
-            while (rs.next()) {
-                Sales sale = new Sales();
-                sale.setId(rs.getInt("id"));
-                sale.setDate(rs.getString("date"));
-                sale.setTotal(rs.getDouble("total"));
-                sale.setCode(rs.getString("code"));
-                sale.setProduct_name(rs.getString("name"));
-                sale.setPrice(rs.getDouble("price"));
-                sale.setQuantity(rs.getInt("quantity"));
-                sale.setSubtotal(rs.getDouble("subtotal"));
-                
-                list_sale.add(sale);
-            }
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    Sales sale = new Sales();
+                    sale.setId(rs.getInt("id"));
+                    sale.setDate(rs.getString("date"));
+                    sale.setTotal(rs.getDouble("total"));
+                    sale.setCode(rs.getString("code"));
+                    sale.setProduct_name(rs.getString("name"));
+                    sale.setPrice(rs.getDouble("price"));
+                    sale.setQuantity(rs.getInt("quantity"));
+                    sale.setSubtotal(rs.getDouble("subtotal"));
+
+                    list_sale.add(sale);
+                }
+            }        
+            
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
