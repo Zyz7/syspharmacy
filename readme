@@ -1,0 +1,49 @@
+SysPharmacy 1.0.0 for Linux
+---------------------------
+---------------------------
+
+SysPharmacy is a example of a pharmacy sales system for Linux
+
+SysPharmacy 2025 zyz7
+
+The main features of SysPharmacy:
+
+- It is an application that has user registration and login.
+
+- Simulates a pharmacy system where employees, customers, products,
+suppliers, categories, purchases and sales can be managed.
+
+- It has options to list all sales and purchases and by creating each
+of these transactions you can print these movements.
+
+- It has two different user roles, administrator and staff,
+the first can perform any task, the second has some options blocked,
+for example making purchases.
+
+SysPharmacy is free software distributed under the Mit License.
+Read License.txt for more information about license.
+
+This distribution package contains the following files:
+
+  bin         - contains the executable file
+  lib         - contains the necessary libraries
+  readme.txt  - this file
+  License.txt - license information
+
+
+Installation
+============
+
+Open the /bin folder, from this location open the terminal and
+type
+
+./SysPharmacy
+
+and enter, example credentials to enter are:
+
+user:     prueba01
+password: prueba01!
+
+
+---------------
+End of document

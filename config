@@ -1,0 +1,20 @@
+# order of folders
+
+- project folder
+-- dist folder
+--- AbsoluteLayout.jar
+--- sqlite.jar
+--- app_main.jar
+-- image.pgn
+-- image.ico
+
+# create jar file
+
+jpackage \
+  --name SysPharmacy \
+  --input dist \
+  --main-jar app.jar \
+  --main-class main.main \
+  --type app-image \
+  --app-version 1.0 \
+  --icon pill.png
